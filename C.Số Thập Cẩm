@@ -1,0 +1,85 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+const long long SAFE_LIMIT = 900000000000000000LL;
+vector<long long> ans;
+vector<long long> tmp_vec;
+
+void gen(long long cur_num, int cur_sum, int rem_len) {
+    if (cur_sum > 10) {
+        return;
+    }
+    if (rem_len == 0) {
+        if (cur_sum == 10) {
+            ans.push_back(cur_num);
+        }
+        return;
+    }
+    if (cur_num > SAFE_LIMIT / 10) {
+        return;
+    }
+    for (int d = 0; d <= 9; d++) {
+        if (cur_sum + d <= 10) {
+            gen(cur_num * 10 + d, cur_sum + d, rem_len - 1);
+        }
+    }
+}
+
+void merge_sort(int l, int r) {
+    if (l >= r) {
+        return;
+    }
+    int mid = l + (r - l) / 2;
+    merge_sort(l, mid);
+    merge_sort(mid + 1, r);
+
+    int i = l;
+    int j = mid + 1;
+    int k = l;
+
+    while (i <= mid && j <= r) {
+        if (ans[i] <= ans[j]) {
+            tmp_vec[k++] = ans[i++];
+        } else {
+            tmp_vec[k++] = ans[j++];
+        }
+    }
+    while (i <= mid) {
+        tmp_vec[k++] = ans[i++];
+    }
+    while (j <= r) {
+        tmp_vec[k++] = ans[j++];
+    }
+    for (int idx = l; idx <= r; idx++) {
+        ans[idx] = tmp_vec[idx];
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    for (int len = 2; len <= 12; len++) {
+        for (int first = 1; first <= 9; first++) {
+            if (first <= 10) {
+                gen(first, first, len - 1);
+            }
+        }
+    }
+
+    if (!ans.empty()) {
+        tmp_vec.resize(ans.size());
+        merge_sort(0, (int)ans.size() - 1);
+    }
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        cout << ans[n - 1] << "\n";
+    }
+
+    return 0;
+}
